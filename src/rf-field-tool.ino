@@ -94,6 +94,7 @@ void loop() {
             scan_run_step(ch, rssi);
             metric = ch;
             mode_str = "SCAN (Ch: " + String(ch) + ")";
+            ui_update("Running", mode_str, metric);
             break;
         }
         case MODE_MONITOR: {
@@ -101,6 +102,7 @@ void loop() {
             monitor_run_step(pkts);
             metric = pkts;
             mode_str = "MONITOR";
+            ui_update("Running", mode_str, metric);
             break;
         }
         case MODE_ATTACK: {
@@ -108,13 +110,14 @@ void loop() {
             attack_run_step(ac);
             metric = ac;
             mode_str = "ATTACK (BT Jam)";
+            // Update OLED only every 100 steps to maximize jamming speed (bypass I2C bottleneck)
+            if (ac % 100 == 0) {
+                ui_update("Running", mode_str, metric);
+            }
             break;
         }
     }
 
-    ui_update("Running", mode_str, metric);
-
-    // Remove delay in attack mode for maximum frequency-hopping speed
     if (current_mode != MODE_ATTACK) {
         delay(100);
     }
