@@ -7,10 +7,8 @@
 // nRF24 exposes channels 0..125 (126 channels total)
 #define ATTACK_CHANNEL_MAX 125
 
-// Minimum milliseconds between two attack steps.
-// Without it the step rate is bounded only by the radio write time, the UI and
-// the serial output saturate and the mode looks frozen on a single step.
-#define ATTACK_STEP_INTERVAL_MS 100
+// Zero delay for maximum transmission rate / fast hopping against FHSS (Bluetooth/BLE)
+#define ATTACK_STEP_INTERVAL_MS 0
 
 void attack_init();
 void attack_run_step(int& attack_counter);

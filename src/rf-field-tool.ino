@@ -29,8 +29,6 @@ void setup() {
 
 void loop() {
     // Check Serial input for remote commands.
-    // readStringUntil() blocks the whole loop until a '\n' arrives, which froze
-    // the attack mode whenever the sender did not terminate the command.
     static String cmd;
     static uint32_t cmd_last_byte_ms = 0;
     static bool cmd_pending = false;
@@ -49,7 +47,6 @@ void loop() {
         }
     }
 
-    // Run the command on newline, or after 200 ms of silence (idle timeout)
     if (cmd_pending && (cmd_terminated || (uint32_t)(millis() - cmd_last_byte_ms) > 200)) {
         cmd.trim();
         cmd.toLowerCase();
@@ -67,6 +64,10 @@ void loop() {
             if (current_mode == MODE_SCAN) Serial.println("SCAN");
             else if (current_mode == MODE_MONITOR) Serial.println("MONITOR");
             else Serial.println("ATTACK");
+        } else if (cmd == "diags" || cmd == "diag") {
+            radios_diagnostic();
+        } else if (cmd == "help") {
+            Serial.println(F("Available commands: scan, monitor, attack, status, diags, help"));
         } else if (cmd.length() > 0) {
             Serial.print(F("[CMD] Unknown command: "));
             Serial.println(cmd);
@@ -106,11 +107,15 @@ void loop() {
             int ac = 0;
             attack_run_step(ac);
             metric = ac;
-            mode_str = "ATTACK (Stub)";
+            mode_str = "ATTACK (BT Jam)";
             break;
         }
     }
 
     ui_update("Running", mode_str, metric);
-    delay(100);
+
+    // Remove delay in attack mode for maximum frequency-hopping speed
+    if (current_mode != MODE_ATTACK) {
+        delay(100);
+    }
 }

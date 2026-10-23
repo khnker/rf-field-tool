@@ -21,8 +21,7 @@
 void radios_init();
 RF24& get_radio_1();
 RF24& get_radio_2();
-
-// True only when both radios answered begin()
 bool radios_ready();
+void radios_diagnostic();
 
 #endif
